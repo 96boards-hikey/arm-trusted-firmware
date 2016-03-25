@@ -54,6 +54,8 @@ static int mmc_device_state(void)
 		ret = ops->send_cmd(&cmd);
 		assert(ret == 0);
 		assert((cmd.resp_data[0] & STATUS_SWITCH_ERROR) == 0);
+		/* Ignore improbable errors in release builds */
+		(void)ret;
 	} while ((cmd.resp_data[0] & STATUS_READY_FOR_DATA) == 0);
 	return MMC_GET_STATE(cmd.resp_data[0]);
 }
@@ -74,6 +76,8 @@ static void mmc_set_ext_csd(unsigned int ext_cmd, unsigned int value)
 	do {
 		state = mmc_device_state();
 	} while (state == MMC_STATE_PRG);
+	/* Ignore improbable errors in release builds */
+	(void)ret;
 }
 
 static void mmc_set_ios(int clk, int bus_width)
@@ -85,6 +89,8 @@ static void mmc_set_ios(int clk, int bus_width)
 		mmc_set_ext_csd(CMD_EXTCSD_BUS_WIDTH, bus_width);
 	ret = ops->set_ios(clk, bus_width);
 	assert(ret == 0);
+	/* Ignore improbable errors in release builds */
+	(void)ret;
 }
 
 static int mmc_enumerate(int clk, int bus_width)
@@ -193,7 +199,8 @@ size_t mmc_read_blocks(int lba, uintptr_t buf, size_t size)
 		ret = ops->send_cmd(&cmd);
 		assert(ret == 0);
 	}
-
+	/* Ignore improbable errors in release builds */
+	(void)ret;
 	return size;
 }
 
@@ -236,6 +243,8 @@ size_t mmc_write_blocks(int lba, uintptr_t buf, size_t size)
 		ret = ops->send_cmd(&cmd);
 		assert(ret == 0);
 	}
+	/* Ignore improbable errors in release builds */
+	(void)ret;
 	return size;
 }
 
@@ -271,7 +280,8 @@ size_t mmc_erase_blocks(int lba, size_t size)
 	do {
 		state = mmc_device_state();
 	} while (state != MMC_STATE_TRAN);
-
+	/* Ignore improbable errors in release builds */
+	(void)ret;
 	return size;
 }
 
