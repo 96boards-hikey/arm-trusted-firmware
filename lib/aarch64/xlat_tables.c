@@ -38,7 +38,7 @@
 #include <string.h>
 #include <xlat_tables.h>
 
-#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
+#if LOG_LEVEL > LOG_LEVEL_VERBOSE
 #define LVL0_SPACER ""
 #define LVL1_SPACER "  "
 #define LVL2_SPACER "    "

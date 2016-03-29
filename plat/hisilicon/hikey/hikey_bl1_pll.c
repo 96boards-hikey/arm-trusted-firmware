@@ -889,6 +889,7 @@ static void init_ddr(int freq)
 		data = mmio_read_32((0xf7032000 + 0x010));
 		data &= 3 << 28;
 	} while (data != (3 << 28));
+	mdelay(10);
 
 	ret = lpddr3_freq_init(freq);
 	if (ret)

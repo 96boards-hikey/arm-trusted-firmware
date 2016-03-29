@@ -136,12 +136,12 @@ ifneq (${DEBUG}, 0)
         CFLAGS		+= 	-g
         ASFLAGS		+= 	-g -Wa,--gdwarf-2
         # Use LOG_LEVEL_INFO by default for debug builds
-        LOG_LEVEL	:=	40
+        LOG_LEVEL	:=	50
 else
         BUILD_TYPE	:=	release
         $(eval $(call add_define,NDEBUG))
         # Use LOG_LEVEL_NOTICE by default for release builds
-        LOG_LEVEL	:=	20
+        LOG_LEVEL	:=	50
 endif
 
 # Default build string (git branch and commit)
