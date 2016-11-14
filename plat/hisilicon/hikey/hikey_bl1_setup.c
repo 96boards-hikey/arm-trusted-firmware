@@ -296,6 +296,12 @@ static void hikey_hi6553_init(void)
 	mmio_write_8(HI6553_LDO19_REG_ADJ, data);
 	mmio_write_8(HI6553_ENABLE4_LDO17_22, 1 << 2);
 	mdelay(5);
+	/* enable LDO21 */
+	data = mmio_read_8(HI6553_LDO21_REG_ADJ);
+	data = (data & 0xf8) | 0x3;
+	mmio_write_8(HI6553_LDO21_REG_ADJ, data);
+	mmio_write_8(HI6553_ENABLE4_LDO17_22, 1 << 4);
+	mdelay(5);
 	/* enable LDO22 */
 	data = mmio_read_8(HI6553_LDO22_REG_ADJ);
 	data = (data & 0xf8) | 0x7;
