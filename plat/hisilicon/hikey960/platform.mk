@@ -94,4 +94,9 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c			\
 				plat/hisilicon/hikey960/drivers/ipc/hisi_ipc.c \
 				${HIKEY960_GIC_SOURCES}
 
+# Enable workarounds for selected Cortex-A53 errata.
+ERRATA_A53_836870		:=	1
+ERRATA_A53_843419		:=	1
+ERRATA_A53_855873		:=	1
+
 $(eval $(call FIP_ADD_IMG,SCP_BL2,--scp-fw))

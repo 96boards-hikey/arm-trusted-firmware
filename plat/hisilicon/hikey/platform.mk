@@ -105,3 +105,8 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c			\
 				plat/hisilicon/hikey/hisi_pwrc.c	\
 				plat/hisilicon/hikey/hisi_pwrc_sram.S	\
 				${HIKEY_GIC_SOURCES}
+
+# Enable workarounds for selected Cortex-A53 errata.
+ERRATA_A53_836870		:=	1
+ERRATA_A53_843419		:=	1
+ERRATA_A53_855873		:=	1
