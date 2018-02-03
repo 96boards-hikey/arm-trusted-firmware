@@ -179,6 +179,7 @@ void hisi_init_ufs(void)
 	ufs_params.desc_base = HISI_UFS_DESC_BASE;
 	ufs_params.desc_size = HISI_UFS_DESC_SIZE;
 	ufs_params.flags = UFS_FLAGS_SKIPINIT;
+	ufs_params.flags |= UFS_FLAGS_PHY_10nm;
 	ufs_init(NULL, &ufs_params);
 }
 

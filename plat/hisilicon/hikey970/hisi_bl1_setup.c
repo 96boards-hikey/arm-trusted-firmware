@@ -214,7 +214,9 @@ static void hisi_ufs_reset(void)
 	/* phy iso only effective on Miami,
 	 * double check for kirin980 and later plat
 	 */
+	/* disable phy iso */
 	mmio_clrbits_32(UFS_SYS_PHY_ISO_EN_REG, BIT_UFS_PHY_ISO_CTRL);
+	/* notice iso disable */
 	mmio_clrbits_32(UFS_SYS_HC_LP_CTRL_REG, BIT_SYSCTRL_LP_ISOL_EN);
 
 	/*step 11.HC aresetn and disable lp_reset*/
@@ -255,6 +257,7 @@ static void hisi_ufs_init(void)
 	ufs_params.reg_base = UFS_REG_BASE;
 	ufs_params.desc_base = HISI_UFS_DESC_BASE;
 	ufs_params.desc_size = HISI_UFS_DESC_SIZE;
+	ufs_params.flags = UFS_FLAGS_PHY_10nm;
 
 	if ((ufs_params.flags & UFS_FLAGS_SKIPINIT) == 0)
 		hisi_ufs_reset();

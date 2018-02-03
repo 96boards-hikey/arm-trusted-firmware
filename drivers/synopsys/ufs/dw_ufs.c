@@ -17,11 +17,13 @@ static int dwufs_phy_init(ufs_params_t *params)
 	uintptr_t base;
 	unsigned int fsm0, fsm1;
 	unsigned int data;
+	int flags;
 	int result;
 
 	assert((params != NULL) && (params->reg_base != 0));
 
 	base = params->reg_base;
+	flags = params->flags;
 
 	/* Unipro VS_MPHY disable */
 	ufshc_dme_set(VS_MPHY_DISABLE_OFFSET, 0, VS_MPHY_DISABLE_MPHYDIS);
@@ -32,6 +34,14 @@ static int dwufs_phy_init(ufs_params_t *params)
 	ufshc_dme_set(0x8121, 0, 0x2d);
 	/* MPHY CBOVRCTRL3 */
 	ufshc_dme_set(0x8122, 0, 0x1);
+
+	if (flags & UFS_FLAGS_PHY_10nm) {
+		/* MPHY CBOVRCTRL4 */
+		ufshc_dme_set(0x8127, 0x0, 0x98);
+		/* MPHY CBOVRCTRL5 */
+		ufshc_dme_set(0x8128, 0x0, 0x1);
+	}
+
 	ufshc_dme_set(VS_MPHY_CFG_UPDT_OFFSET, 0, 1);
 
 	/* MPHY RXOVRCTRL4 rx0 */
@@ -51,12 +61,27 @@ static int dwufs_phy_init(ufs_params_t *params)
 	ufshc_dme_set(0x8113, 0, 0x1);
 	ufshc_dme_set(VS_MPHY_CFG_UPDT_OFFSET, 0, 1);
 
-	ufshc_dme_set(RX_HS_G3_SYNC_LENGTH_CAP_OFFSET, 4, 0x4a);
-	ufshc_dme_set(RX_HS_G3_SYNC_LENGTH_CAP_OFFSET, 5, 0x4a);
-	ufshc_dme_set(RX_HS_G2_SYNC_LENGTH_CAP_OFFSET, 4, 0x4a);
-	ufshc_dme_set(RX_HS_G2_SYNC_LENGTH_CAP_OFFSET, 5, 0x4a);
-	ufshc_dme_set(RX_MIN_ACTIVATETIME_CAP_OFFSET, 4, 0x7);
-	ufshc_dme_set(RX_MIN_ACTIVATETIME_CAP_OFFSET, 5, 0x7);
+	if (flags & UFS_FLAGS_PHY_10nm) {
+		/* RX_Hibern8Time_Capability*/
+		ufshc_dme_set(0x0092, 4, 0xa);
+		/* RX_Hibern8Time_Capability*/
+		ufshc_dme_set(0x0092, 5, 0xa);
+		/* RX_Min_ActivateTime*/
+		ufshc_dme_set(RX_MIN_ACTIVATETIME_CAP_OFFSET, 4, 0xa);
+		/* RX_Min_ActivateTime*/
+		ufshc_dme_set(RX_MIN_ACTIVATETIME_CAP_OFFSET, 5, 0xa);
+	} else {
+		/* RX_Min_ActivateTime*/
+		ufshc_dme_set(RX_MIN_ACTIVATETIME_CAP_OFFSET, 4, 0x7);
+		/* RX_Min_ActivateTime*/
+		ufshc_dme_set(RX_MIN_ACTIVATETIME_CAP_OFFSET, 5, 0x7);
+	}
+
+	ufshc_dme_set(RX_HS_G3_SYNC_LENGTH_CAP_OFFSET, 4, 0x4f);
+	ufshc_dme_set(RX_HS_G3_SYNC_LENGTH_CAP_OFFSET, 5, 0x4f);
+	ufshc_dme_set(RX_HS_G2_SYNC_LENGTH_CAP_OFFSET, 4, 0x4f);
+	ufshc_dme_set(RX_HS_G2_SYNC_LENGTH_CAP_OFFSET, 5, 0x4f);
+
 	ufshc_dme_set(TX_HIBERN8TIME_CAP_OFFSET, 0, 0x5);
 	ufshc_dme_set(TX_HIBERN8TIME_CAP_OFFSET, 1, 0x5);
 	ufshc_dme_set(VS_MPHY_CFG_UPDT_OFFSET, 0, 1);
@@ -76,7 +101,9 @@ static int dwufs_phy_init(ufs_params_t *params)
 			break;
 	}
 
-	mmio_write_32(base + HCLKDIV, 0xE4);
+	if (!(flags & UFS_FLAGS_PHY_10nm))
+		mmio_write_32(base + HCLKDIV, 0xE4);
+
 	mmio_clrbits_32(base + AHIT, 0x3FF);
 
 	ufshc_dme_set(PA_LOCAL_TX_LCC_ENABLE_OFFSET, 0, 0);
@@ -97,10 +124,36 @@ static int dwufs_phy_set_pwr_mode(ufs_params_t *params)
 	int result;
 	unsigned int data, tx_lanes, rx_lanes;
 	uintptr_t base;
+	int flags;
 
 	assert((params != NULL) && (params->reg_base != 0));
 
 	base = params->reg_base;
+	flags = params->flags;
+
+	if (flags & UFS_FLAGS_PHY_10nm) {
+		/* VS_DebugSaveConfigTime */
+		ufshc_dme_set(0xd0a0, 0x0, 0x13);
+		/* g1 sync length */
+		ufshc_dme_set(0x1552, 0x0, 0x4f);
+		/* g2 sync length */
+		ufshc_dme_set(0x1554, 0x0, 0x4f);
+		/* g3 sync length */
+		ufshc_dme_set(0x1556, 0x0, 0x4f);
+		/* PA_Hibern8Time*/
+		ufshc_dme_set(0x15a7, 0x0, 0xa);
+		/* PA_Tactivate*/
+		ufshc_dme_set(PA_TACTIVATE_OFFSET, 0x0, 0xa);
+		ufshc_dme_set(VS_MPHY_CFG_UPDT_OFFSET, 0x0, 0x01);
+	}
+
+	if (flags & UFS_FLAGS_VENDOR_SKHYNIX) {
+		NOTICE("ufs: H**** device must set VS_DebugSaveConfigTime 0x10\n");
+		/* VS_DebugSaveConfigTime */
+		ufshc_dme_set(0xd0a0, 0x0, 0x10);
+		/* sync length */
+		ufshc_dme_set(0x1556, 0x0, 0x48);
+	}
 
 	result = ufshc_dme_get(PA_TACTIVATE_OFFSET, 0, &data);
 	assert(result == 0);
