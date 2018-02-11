@@ -27,6 +27,10 @@ BL31_SOURCES		+=	bl31/bl31_main.c				\
 				${PSCI_LIB_SOURCES}				\
 				${SPM_SOURCES}					\
 
+ifeq (${HISI_IP_REGULATOR_ENABLE}, 1)
+BL31_SOURCES		+=	services/std_svc/ip_regulator/ip_regulator.c
+BL31_SOURCES		+=	services/std_svc/std_hisi_service_setup.c
+endif
 
 ifeq (${ENABLE_PMF}, 1)
 BL31_SOURCES		+=	lib/pmf/pmf_main.c

@@ -34,6 +34,8 @@ ifneq ($(BL32_EXTRA2),)
 $(eval $(call FIP_ADD_IMG,BL32_EXTRA2,--tos-fw-extra2))
 endif
 
+HISI_IP_REGULATOR_ENABLE := 1
+
 ENABLE_PLAT_COMPAT	:=	0
 
 USE_COHERENT_MEM	:=	1

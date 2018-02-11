@@ -219,6 +219,7 @@ INCLUDES		+=	-Iinclude/bl1				\
 				-Iinclude/lib/xlat_tables		\
 				-Iinclude/plat/common			\
 				-Iinclude/services			\
+				-Iinclude/bl31/services                 \
 				${PLAT_INCLUDES}			\
 				${SPD_INCLUDES}				\
 				-Iinclude/tools_share

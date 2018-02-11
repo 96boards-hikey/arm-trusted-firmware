@@ -20,6 +20,7 @@
 #include <string.h>
 #include <hisi_private.h>
 #include <hisi_setup_op.h>
+#include <hisi_service.h>
 
 #ifndef BIT
 #define BIT(n)	(1 << (n))
@@ -39,6 +40,20 @@
 #define SET_SOC_PMCTRL_NOC_IDLE_MOD_MASK		16
 #define SOC_MODULE_NOC_TIMEOUT			100
 /***********************NOC END******************/
+
+enum ip_regulator_id {
+
+	IP_REGULATOR_MEDIA1_SUBSYS_ID = 0,
+	IP_REGULATOR_VIVOBUS_ID,
+	IP_REGULATOR_VCODEC_ID,
+	IP_REGULATOR_DSS_ID,
+	IP_REGULATOR_ISP_ID,
+	IP_REGULATOR_VDEC_ID,
+	IP_REGULATOR_VENC_ID,
+	IP_REGULATOR_ISP_SRT_ID,
+	IP_REGULATOR_MEDIA2_SUBSYS_ID,
+	IP_REGULATOR_ID_MAX,
+};
 
 static void autofs_mediacrg1_init_set(void)
 {
@@ -618,4 +633,93 @@ void hisi_regulator_disable(void)
 	set_vivobus_power_down();
 	set_media2_subsys_power_down();
 	set_media1_subsys_power_down();
+}
+
+static uint64_t hisi_set_regulator_power_up(uint64_t dev_id)
+{
+	uint64_t ret = 0;
+
+	switch (dev_id) {
+
+	case IP_REGULATOR_MEDIA1_SUBSYS_ID:
+		set_media1_subsys_power_up();
+		break;
+	case IP_REGULATOR_VIVOBUS_ID:
+		set_vivobus_power_up();
+		break;
+	case IP_REGULATOR_VCODEC_ID:
+		set_vcodec_power_up();
+		break;
+	case IP_REGULATOR_DSS_ID:
+		set_dss_power_up();
+		break;
+	case IP_REGULATOR_ISP_ID:
+		set_isp_power_up();
+		break;
+	case IP_REGULATOR_VDEC_ID:
+		set_vdec_power_up();
+		break;
+	case IP_REGULATOR_VENC_ID:
+		set_venc_power_up();
+		break;
+	case IP_REGULATOR_ISP_SRT_ID:
+		set_isp_srt_power_up();
+		break;
+	case IP_REGULATOR_MEDIA2_SUBSYS_ID:
+		set_media2_subsys_power_up();
+		break;
+	default:
+		ret = (uint64_t)REGULATOR_E_ERROR;
+	}
+	return ret;
+}
+
+static uint64_t hisi_set_regulator_power_down(uint64_t dev_id)
+{
+	uint64_t ret = 0;
+
+	switch (dev_id) {
+
+	case IP_REGULATOR_MEDIA1_SUBSYS_ID:
+		set_media1_subsys_power_down();
+		break;
+	case IP_REGULATOR_VIVOBUS_ID:
+		set_vivobus_power_down();
+		break;
+	case IP_REGULATOR_VCODEC_ID:
+		set_vcodec_power_down();
+		break;
+	case IP_REGULATOR_DSS_ID:
+		set_dss_power_down();
+		break;
+	case IP_REGULATOR_ISP_ID:
+		set_isp_power_down();
+		break;
+	case IP_REGULATOR_VDEC_ID:
+		set_vdec_power_down();
+		break;
+	case IP_REGULATOR_VENC_ID:
+		set_venc_power_down();
+		break;
+	case IP_REGULATOR_ISP_SRT_ID:
+		set_isp_srt_power_down();
+		break;
+	case IP_REGULATOR_MEDIA2_SUBSYS_ID:
+		set_media2_subsys_power_down();
+		break;
+	default:
+		ret = (uint64_t)REGULATOR_E_ERROR;
+	}
+	return ret;
+}
+
+static const plat_regulator_ops_t hisi_regulator_ops = {
+	hisi_set_regulator_power_up,
+	hisi_set_regulator_power_down,
+};
+
+int platform_regulator_ops_register(const struct plat_regulator_ops **plat_ops)
+{
+	*plat_ops = &hisi_regulator_ops;
+	return REGULATOR_E_SUCCESS;
 }

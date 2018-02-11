@@ -56,6 +56,8 @@
 #define OEN_OEM_END			U(3)
 #define OEN_STD_START			U(4)	/* Standard Service Calls */
 #define OEN_STD_END			U(4)
+#define OEN_STD_HISI_SERVICE_START	U(5)
+#define OEN_STD_HISI_SERVICE_END	U(5)
 #define OEN_TAP_START			U(48)	/* Trusted Applications */
 #define OEN_TAP_END			U(49)
 #define OEN_TOS_START			U(50)	/* Trusted OS */
