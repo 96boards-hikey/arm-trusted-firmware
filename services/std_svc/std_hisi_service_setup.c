@@ -17,10 +17,11 @@
 
 
 /* Standard Service UUID */
+/*
 DEFINE_SVC_UUID(hisi_service_svc_uid,
         0x108d905b, 0xf863, 0x47e8, 0xae, 0x2d,
         0xc0, 0xfb, 0x56, 0x41, 0xf6, 0xe2);
-
+*/
 /* Setup Standard Services */
 static int32_t std_smc_hisi_service_setup(void)
 {
