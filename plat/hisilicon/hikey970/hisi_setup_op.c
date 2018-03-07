@@ -52,6 +52,7 @@ enum ip_regulator_id {
 	IP_REGULATOR_VENC_ID,
 	IP_REGULATOR_ISP_SRT_ID,
 	IP_REGULATOR_MEDIA2_SUBSYS_ID,
+	IP_REGULATOR_ICS_ID,
 	IP_REGULATOR_ID_MAX,
 };
 
@@ -558,6 +559,70 @@ static void set_isp_srt_power_down(void)
 
 }
 
+static void set_ics_power_up(void)
+{
+	/*1:module mtcmos on*/
+	mmio_write_32(CRG_PERPWREN_REG, 0x00000100);
+	udelay(100);
+
+	/*2:module clk enable*/
+	mmio_write_32(CRG_CLKDIV18_REG, 0x40004000);
+	mmio_write_32(MEDIA2_CRG_PEREN0_REG, 0x00000007);
+	udelay(1);
+
+	/*3:module clk disable*/
+	mmio_write_32(MEDIA2_CRG_PERDIS0_REG, 0x00000007);
+	udelay(1);
+
+	/*4:module iso disable*/
+	mmio_write_32(CRG_ISODIS_REG, 0x00000100);
+
+	/*5:memory rempair*/
+	// hisi_ip_mem_repair(MRB_CNN);
+
+	/*6:module unrst*/
+	mmio_write_32(MEDIA2_CRG_PERRSTDIS0_REG, 0x00000038);
+
+	/*7:module clk enable*/
+	mmio_write_32(MEDIA2_CRG_PEREN0_REG, 0x00000007);
+
+	/*8:bus idle clear*/
+	bus_idle_clear(SOC_PMCTRL_NOC_POWER_IDLEREQ_ICS);
+
+	/*9:2p memory init*/
+	// writel(0x02605550, SOC_ACPU_ICS_BASE_ADDR + 0xA0008);
+
+	NOTICE("[%s] done!\n", __func__);
+}
+
+static void set_ics_power_down(void)
+{
+	/*1:bus idle set*/
+	bus_idle_set(SOC_PMCTRL_NOC_POWER_IDLEREQ_ICS);
+
+	/*2.0:module clk disable*/
+	mmio_write_32(MEDIA2_CRG_PERDIS0_REG, 0x00000007);
+	udelay(1);
+
+	/*2.1:module rst*/
+	mmio_write_32(MEDIA2_CRG_PERRSTEN0_REG, 0x00000038);
+
+	/*2.2:module clk enable*/
+	mmio_write_32(MEDIA2_CRG_PEREN0_REG, 0x00000007);
+
+	/*3:module clk disable*/
+	mmio_write_32(MEDIA2_CRG_PERDIS0_REG, 0x00000007);
+	mmio_write_32(CRG_CLKDIV18_REG, 0x40000000);
+
+	/*4:module iso*/
+	mmio_write_32(CRG_ISOEN_REG, 0x00000100);
+
+	/*5:module mtcmos off*/
+	mmio_write_32(CRG_PERPWRDIS_REG, 0x00000100);
+
+	NOTICE("[%s] done!\n", __func__);
+}
+
 static void set_media2_subsys_power_up(void)
 {
 	/*1:module mtcmos on*/
@@ -617,6 +682,7 @@ void hisi_regulator_enable(void)
 	set_venc_power_up();
 	set_isp_power_up();
 	set_isp_srt_power_up();
+	set_ics_power_up();
 	/* isp module unrst */
 	mmio_write_32(0xe8583800, 0x7);
 	mmio_write_32(0xe8583804, 0xf);
@@ -624,6 +690,7 @@ void hisi_regulator_enable(void)
 
 void hisi_regulator_disable(void)
 {
+	set_ics_power_down();
 	set_isp_srt_power_down();
 	set_isp_power_down();
 	set_venc_power_down();
@@ -665,6 +732,9 @@ static uint64_t hisi_set_regulator_power_up(uint64_t dev_id)
 	case IP_REGULATOR_ISP_SRT_ID:
 		set_isp_srt_power_up();
 		break;
+	case IP_REGULATOR_ICS_ID:
+		set_ics_power_up();
+		break;
 	case IP_REGULATOR_MEDIA2_SUBSYS_ID:
 		set_media2_subsys_power_up();
 		break;
@@ -703,6 +773,9 @@ static uint64_t hisi_set_regulator_power_down(uint64_t dev_id)
 		break;
 	case IP_REGULATOR_ISP_SRT_ID:
 		set_isp_srt_power_down();
+		break;
+	case IP_REGULATOR_ICS_ID:
+		set_ics_power_down();
 		break;
 	case IP_REGULATOR_MEDIA2_SUBSYS_ID:
 		set_media2_subsys_power_down();
