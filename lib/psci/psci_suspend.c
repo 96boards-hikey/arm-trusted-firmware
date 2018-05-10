@@ -147,6 +147,8 @@ void psci_cpu_suspend_start(entry_point_info_t *ep,
 	int skip_wfi = 0;
 	unsigned int idx = plat_my_core_pos();
 
+	if (is_power_down_state)
+		return;
 	/*
 	 * This function must only be called on platforms where the
 	 * CPU_SUSPEND platform hooks have been implemented.
